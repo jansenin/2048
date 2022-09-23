@@ -1,0 +1,951 @@
+768
+package com.mygdx.game.desktop;
+
+import com.badlogic.gdx.Files;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.mygdx.game.Main;
+
+public class DesktopLauncher {
+	public static void main (String[] arg) {
+		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		config.width = 500;
+		config.height = 750;
+		config.resizable = false;
+		config.title = "2048";
+		config.addIcon("icon.png", Files.FileType.Internal);
+		new LwjglApplication(new Main(), config);
+	}
+}
+package com.mygdx.game;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+
+public class Button {
+    //Текстура кнопки
+    public Texture texture1;
+
+    //Текстура кнопки при нажатии
+    public Texture texture2;
+
+    //Позиция кнопки
+    public Vector2 position;
+
+    //Вектор движения кнопки
+    public Vector2 velosity = new Vector2(0,0);
+
+    ///Увеличиваеться ли кнопка в размерах
+    protected boolean is_grow = false;
+
+    //Движеться ли кнопка
+    protected boolean is_move = false;
+
+    //Активна ли кнопка
+    public boolean active = true;
+
+    //Видно ли кнопку
+    public boolean visible = true;
+
+    private boolean f = true;
+
+    //нажата ли кнопка
+    public boolean is_button_pressed = false;
+
+    //Ширина кнопки
+    public float width;
+
+    //Высота кнопки
+    public float height;
+
+    //Увеличение кнопки по горизонтали
+    public float width_grow = 0;
+
+    //Увеличение кнопки по вертикали
+    public float height_grow = 0;
+
+    //какую картинку сейчас рисовать
+    private boolean now_is_texture1 = true;
+
+    private boolean is_last_just_pressed_were_on_the_button = false;
+
+    public Button(String texture1, String texture2, Vector2 position) {
+        this.texture1 = new Texture(texture1);
+        this.texture2 = new Texture(texture2);
+        this.width = this.texture1.getWidth();
+        this.height = this.texture2.getHeight();
+        this.position = new Vector2(position);
+    }
+
+    public Button(String texture1, String texture2, int x,int y) {
+        this.texture1 = new Texture(texture1);
+        this.texture2 = new Texture(texture2);
+        this.width = this.texture1.getWidth();
+        this.height = this.texture2.getHeight();
+        this.position = new Vector2(x,y);
+    }
+
+    public Button(Vector2 position, float width, float height) {
+        this.position = new Vector2(position);
+        this.width = width;
+        this.height = height;
+    }
+
+    public void setImages(String texture1,String texture2){
+        this.texture1 = new Texture(texture1);
+        this.texture2 = new Texture(texture2);
+    }
+
+    public void setPosition(float x,float y){
+        this.position.x = x;
+        this.position.y = y;
+    }
+
+    public void setPosition(Vector2 position) {
+        this.position = position;
+    }
+
+    public void setVelosity(Vector2 velosity) {
+        this.velosity = velosity;
+    }
+
+    public void setWidth(float width) {
+        this.width = width;
+    }
+
+    public void setHeight(float height) {
+        this.height = height;
+    }
+
+    public void setVelosity(float x,float y){
+        this.velosity.x = x;
+        this.velosity.y = y;
+    }
+
+    public void move(){
+        is_move = true;
+    }
+
+    public void stopMove(){
+        is_move = false;
+    }
+
+    public void setVisible(boolean visible){
+        this.visible = visible;
+    }
+
+    public void show(){
+        visible = true;
+    }
+
+    public void hide(){
+        visible = false;
+    }
+
+    public void setActive(boolean active){
+        this.active = active;
+    }
+
+    public void activate(){
+        active = true;
+    }
+
+    public void deactivate(){
+        active = false;
+    }
+
+    public void setSize(float width,float height){
+        this.width = width;
+        this.height = height;
+    }
+
+    public void setSizeGrow(float width_grow,float height_grow){
+        this.width_grow = width_grow;
+        this.height_grow = height_grow;
+    }
+
+    public void setWidthGrow(float width_grow){
+        this.width_grow = width_grow;
+    }
+
+    public void setHeightGrow(float height_grow){
+        this.height_grow = height_grow;
+    }
+
+    public void grow(){
+        is_grow = true;
+    }
+
+    public void stopGrow(){
+        is_grow = false;
+    }
+
+    public boolean is_pressed(){
+        return is_button_pressed;
+    }
+
+    public void update(){
+        if (active) {
+
+            if (is_button_pressed) is_button_pressed = false;
+            if(is_move) {
+                position.add(velosity);
+            }
+
+            if(is_grow){
+                width += width_grow;
+                height += height_grow;
+                position.x -= width_grow / 2;
+                position.y -= height_grow / 2;
+            }
+
+            if (Gdx.input.isButtonPressed(Input.Buttons.LEFT) && Gdx.input.justTouched() && position.x < Gdx.input.getX() && position.x + width > Gdx.input.getX() && position.y < (Gdx.graphics.getHeight()-Gdx.input.getY()) && position.y + height > (Gdx.graphics.getHeight()-Gdx.input.getY()))
+                is_last_just_pressed_were_on_the_button = true;
+            //********************************************
+
+            if (now_is_texture1 && !Gdx.input.isTouched() && !f){
+                is_button_pressed = true;
+            }
+            else {
+                is_button_pressed = false;
+                f = false;
+            }
+
+            //********************************************
+
+            if (is_last_just_pressed_were_on_the_button && position.x < Gdx.input.getX() && position.x + width > Gdx.input.getX() && position.y < (Gdx.graphics.getHeight()-Gdx.input.getY()) && position.y + height > (Gdx.graphics.getHeight()-Gdx.input.getY()))
+                now_is_texture1 = true;
+            else now_is_texture1 = false;
+
+            if (!Gdx.input.isTouched()) is_last_just_pressed_were_on_the_button = false;
+        }
+    }
+
+    public void render(SpriteBatch batch){
+        update();
+        if (visible){
+            if (now_is_texture1){
+                batch.draw(texture2,position.x,position.y,width,height);
+            }
+            else{
+                batch.draw(texture1,position.x,position.y,width,height);
+            }
+        }
+    }
+}
+package com.mygdx.game;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
+import java.util.Random;
+
+public class Field {
+    public Number[][] numbers = new Number[4][4];
+    private Number[] destroyed_numbers = new Number[16];
+    private static Random random = new Random();
+    private int lastJustPressX = -10000,lastJustPressY = - 10000,score,destroyed_index;
+    private int x,y;
+    private boolean need_to_add_number = true;
+    public static final int cell_size = 100;
+    public static final int pixels_beetwen_cells = 20;
+
+
+
+    public void setNumbers(Number[][] numbers) {
+        this.numbers = numbers;
+    }
+
+    public void setDestroyed_numbers(Number[] destroyed_numbers) {
+        this.destroyed_numbers = destroyed_numbers;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public void setDestroyed_index(int destroyed_index) {
+        this.destroyed_index = destroyed_index;
+    }
+
+    public void setNeed_to_add_number(boolean need_to_add_number) {
+        this.need_to_add_number = need_to_add_number;
+    }
+
+    public Number[][] getNumbers() {
+        return numbers;
+    }
+
+    public Number[] getDestroyed_numbers() {
+        return destroyed_numbers;
+    }
+
+    public int getDestroyed_index() {
+        return destroyed_index;
+    }
+
+    public boolean isNeed_to_add_number() {
+        return need_to_add_number;
+    }
+
+    public void restart(){
+        for (int i = 0;i <= 3;i++){
+            for (int j = 0;j <= 3;j++){
+                numbers[i][j] = null;
+            }
+        }
+        for (int i = 0;i <= 15;i++){
+            destroyed_numbers[i] = null;
+        }
+        lastJustPressY = lastJustPressX = -10000;
+        need_to_add_number = true;
+        score = 0;
+        destroyed_index = 0;
+        addNumberToField();
+    }
+
+    public boolean is_there_2048(){
+        for (int i = 0;i <= 3;i++){
+            for (int j = 0;j <= 3;j++){
+                if (!(numbers[i][j] == null)) {
+                    if (numbers[i][j].getValue() == 2048) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Field(int x,int y){
+        this.x = x;
+        this.y = y;
+        addNumberToField();
+    }
+
+    public int getScore(){
+        return score;
+    }
+
+    public boolean is_game_over(){
+        for (int i = 0; i <= 3;i++){
+            for (int j = 0;j <= 3;j++){
+                if (numbers[i][j] == null) return false;
+            }
+        }
+        for (int i = 0;i <= 3;i++){
+            for (int j = 0;j <= 3;j++){
+                if (i - 1 >= 0) if ((numbers[i][j].getTime_value() == numbers[i - 1][j].getTime_value()) && !(numbers[i][j].getTime_value() == 8192)) return false;
+                if (i + 1 <= 3) if ((numbers[i][j].getTime_value() == numbers[i + 1][j].getTime_value()) && !(numbers[i][j].getTime_value() == 8192)) return false;
+                if (j - 1 >= 0) if ((numbers[i][j].getTime_value() == numbers[i][j - 1].getTime_value()) && !(numbers[i][j].getTime_value() == 8192)) return false;
+                if (j + 1 <= 3) if ((numbers[i][j].getTime_value() == numbers[i][j + 1].getTime_value()) && !(numbers[i][j].getTime_value() == 8192)) return false;
+            }
+        }
+        return true;
+    }
+
+    private void addNumberToField(){
+        if (need_to_add_number) {
+            int x, y;
+            boolean fl = true;
+            while (fl) {
+                x = random.nextInt(4);
+                y = random.nextInt(4);
+                if (numbers[y][x] == null) {
+                    fl = false;
+                    if (random.nextInt(4) == 0) {
+                        numbers[y][x] = new Number(4, this.x + (cell_size + pixels_beetwen_cells) * x, this.y + (cell_size + pixels_beetwen_cells) * y);
+                    } else {
+                        numbers[y][x] = new Number(2, this.x + (cell_size + pixels_beetwen_cells) * x, this.y + (cell_size + pixels_beetwen_cells) * y);
+                    }
+                }
+            }
+            need_to_add_number = false;
+        }
+    }
+
+    public void addNumberToField(int x,int y,int value){
+        numbers[y][x] = new Number(value, this.x + (cell_size + pixels_beetwen_cells) * x, this.y + (cell_size + pixels_beetwen_cells) * y);
+    }
+
+    public void render(SpriteBatch batch){
+        for (int i = 0;i <= 15;i++){
+            if (!(destroyed_numbers[i] == null)){
+                destroyed_numbers[i].render(batch);
+            }
+        }
+        for (int i = 0;i <= 3;i++){
+            for (int j = 0;j <= 3;j++){
+                if (numbers[i][j] != null){
+                    numbers[i][j].render(batch);
+                }
+            }
+        }
+    }
+
+    public void update(){
+        if (Gdx.input.justTouched() && Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+            lastJustPressX = Gdx.input.getX();
+            lastJustPressY = Gdx.graphics.getHeight() - Gdx.input.getY();
+        }
+
+        for (int i = 0;i <= 3;i++){
+            for (int j = 0;j <= 3;j++){
+                if (numbers[i][j] != null){
+                    numbers[i][j].update();
+                    if (numbers[i][j].getMove_process() == -1){
+                        numbers[i][j].setPosition(this.x + (cell_size + pixels_beetwen_cells) * j,this.y + (cell_size + pixels_beetwen_cells) * i);
+                    }
+                }
+            }
+        }
+
+        for (int i = 0;i <= 15;i++){
+            if (!(destroyed_numbers[i] == null)){
+                destroyed_numbers[i].update();
+                if (destroyed_numbers[i].isItDestroid()) destroyed_numbers[i] = null;
+            }
+        }
+
+
+
+        boolean processesFinished = true;
+
+        for (int i = 0;i <= 3;i++){
+            for (int j = 0;j <= 3;j++){
+                if (numbers[i][j] != null) {
+                    if (!numbers[i][j].isProcessesFinished()) processesFinished = false;
+                }
+            }
+        }
+
+        if (!Gdx.input.isTouched() && processesFinished){
+            if (!(lastJustPressX == -10000) || Gdx.input.isKeyJustPressed(Input.Keys.DOWN)
+                    || Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.LEFT)
+                    || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.A)
+                    || Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.D)
+                    || Gdx.input.isKeyJustPressed(Input.Keys.S)){
+                int deltax,deltay;
+                destroyed_index = 0;
+                deltax = Gdx.input.getX() - lastJustPressX;
+                deltay = (Gdx.graphics.getHeight() - Gdx.input.getY()) - lastJustPressY;
+
+                if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) || Gdx.input.isKeyJustPressed(Input.Keys.D)){
+                    deltax = 50;
+                    deltay = 0;
+                }else if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.A)){
+                    deltax = -50;
+                    deltay = 0;
+                }else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W)){
+                    deltax = 0;
+                    deltay = 50;
+                }else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.S)){
+                    deltax = 0;
+                    deltay = -50;
+                }
+
+                if (Math.abs(deltax) > 30 || Math.abs(deltay) > 30){
+                    boolean is_move = false;
+                    boolean is_add = false;
+                    if (Math.abs(deltax) > Math.abs(deltay)){
+                        if (deltax > 0){
+                            //right
+                            for (int i = 0;i <= 3;i++) {
+                                for (int ij = 0; ij <= 3; ij++) {
+                                    for (int j = 2; j >= 0; j--) {
+                                        if (!(numbers[i][j] == null)) {
+                                            if (numbers[i][j + 1] == null) {
+                                                numbers[i][j].moveright(1);
+                                                numbers[i][j + 1] = numbers[i][j];
+                                                numbers[i][j] = null;
+                                                need_to_add_number = true;
+                                                is_move = true;
+                                            } else {
+                                                if ((numbers[i][j].getTime_value() == numbers[i][j + 1].getTime_value()) && !(numbers[i][j].isItAdded()) && !(numbers[i][j + 1].isItAdded()) && !(numbers[i][j].getTime_value() == 8192)) {
+                                                    numbers[i][j].destroy();
+                                                    numbers[i][j].moveright(1);
+                                                    destroyed_numbers[destroyed_index] = numbers[i][j];
+                                                    destroyed_index += 1;
+                                                    numbers[i][j] = null;
+                                                    numbers[i][j + 1].add();
+                                                    score += numbers[i][j + 1].getTime_value();
+                                                    need_to_add_number = true;
+                                                    is_move = true;
+                                                    is_add = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            //left
+                            for (int i = 0;i <= 3;i++) {
+                                for (int ij = 0; ij <= 3; ij++) {
+                                    for (int j = 1; j <= 3; j++) {
+                                        if (!(numbers[i][j] == null)) {
+                                            if (numbers[i][j - 1] == null) {
+                                                numbers[i][j - 1] = numbers[i][j];
+                                                numbers[i][j - 1].moveleft(1);
+                                                numbers[i][j] = null;
+                                                need_to_add_number = true;
+                                                is_move = true;
+                                            } else {
+                                                if ((numbers[i][j].getTime_value() == numbers[i][j - 1].getTime_value()) && !(numbers[i][j].isItAdded()) && !(numbers[i][j - 1].isItAdded()) && !(numbers[i][j].getTime_value() == 8192)) {
+                                                    numbers[i][j].destroy();
+                                                    numbers[i][j].moveleft(1);
+                                                    destroyed_numbers[destroyed_index] = numbers[i][j];
+                                                    destroyed_index += 1;
+                                                    numbers[i][j] = null;
+                                                    numbers[i][j - 1].add();
+                                                    score += numbers[i][j - 1].getTime_value();
+                                                    need_to_add_number = true;
+                                                    is_move = true;
+                                                    is_add = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        if (deltay < 0){
+                            //up
+                            for (int i = 0;i <= 3;i++) {
+                                for (int ij = 0; ij <= 3; ij++) {
+                                    for (int j = 1; j <= 3; j++) {
+                                        if (!(numbers[j][i] == null)) {
+                                            if (numbers[j - 1][i] == null) {
+                                                numbers[j - 1][i] = numbers[j][i];
+                                                numbers[j - 1][i].movedown(1);
+                                                numbers[j][i] = null;
+                                                need_to_add_number = true;
+                                                is_move = true;
+                                            } else {
+                                                if ((numbers[j][i].getTime_value() == numbers[j - 1][i].getTime_value()) && !(numbers[j][i].isItAdded()) && !(numbers[j - 1][i].isItAdded()) && !(numbers[j][i].getTime_value() == 8192)) {
+                                                    numbers[j][i].destroy();
+                                                    numbers[j][i].movedown(1);
+                                                    destroyed_numbers[destroyed_index] = numbers[j][i];
+                                                    destroyed_index += 1;
+                                                    numbers[j][i] = null;
+                                                    numbers[j - 1][i].add();
+                                                    score += numbers[j - 1][i].getTime_value();
+                                                    need_to_add_number = true;
+                                                    is_move = true;
+                                                    is_add = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            //down
+                            for (int i = 0;i <= 3;i++) {
+                                for (int ij = 0; ij <= 3; ij++) {
+                                    for (int j = 2; j >= 0; j--) {
+                                        if (!(numbers[j][i] == null)) {
+                                            if (numbers[j + 1][i] == null) {
+                                                numbers[j + 1][i] = numbers[j][i];
+                                                numbers[j + 1][i].moveup(1);
+                                                numbers[j][i] = null;
+                                                need_to_add_number = true;
+                                                is_move = true;
+                                            } else {
+                                                if ((numbers[j][i].getTime_value() == numbers[j + 1][i].getTime_value()) && !(numbers[j][i].isItAdded()) && !(numbers[j + 1][i].isItAdded()) && !(numbers[j][i].getTime_value() == 8192)) {
+                                                    numbers[j][i].destroy();
+                                                    numbers[j][i].moveup(1);
+                                                    destroyed_numbers[destroyed_index] = numbers[j][i];
+                                                    destroyed_index += 1;
+                                                    numbers[j][i] = null;
+                                                    numbers[j + 1][i].add();
+                                                    score += numbers[j + 1][i].getTime_value();
+                                                    need_to_add_number = true;
+                                                    is_move = true;
+                                                    is_add = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    addNumberToField();
+                    if (Main.is_volume_on) {
+                        if (is_move) {
+                            Main.move.play(0.25f);
+                        }
+                        if (is_add) {
+                            Main.add.play();
+                        }
+                    }
+                }
+                lastJustPressX = -10000;
+                //System.out.println(score);
+                /*System.out.println(' ');
+                System.out.println(' ');
+                for (int i = 3;i >= 0;i--){
+                    System.out.println(' ');
+                    for (int j = 0;j <= 3;j++){
+                        if (!(numbers[i][j] == null)){
+                            System.out.print(numbers[i][j].getTime_value());
+                        }
+                        else{
+                            System.out.print('*');
+                        }
+                    }
+                }*/
+            }
+        }
+    }
+}
+package com.mygdx.game;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
+import java.io.Serializable;
+import java.util.HashMap;
+
+public class Number {
+    public int value,time_value;
+    private static HashMap<Integer,Texture> textures = new HashMap<>();
+    private float x,y,size_persent = 200;
+    private int create_process,destruct_process,move_process,addition_process,v;
+    private static final int PROCESS_TIME = 5;
+    private boolean right,left,up,down,added;
+    private boolean destroed;
+
+    static {
+        for (int i = 1;i <= 13;i++){
+            textures.put((int)Math.pow(2,i),new Texture(((int)Math.pow(2,i)) + ".png"));
+        }
+    }
+
+    public Number(int value,int x,int y){
+        move_process = destruct_process = addition_process = -1;
+        this.value = value;
+        this.time_value = value;
+        create_process = PROCESS_TIME;
+        this.x = x;
+        this.y = y;
+        update();
+    }
+
+    public void setPosition(int x,int y){
+        this.x = x;
+        this.y = y;
+    }
+
+    public boolean isProcessesFinished(){
+        return (create_process == -1) && (destruct_process == -1) && (move_process == -1) && (addition_process == -1);
+    }
+
+    public void render(SpriteBatch batch){
+        batch.draw(textures.get(new Integer(value)),x + Field.cell_size / 2 - (Field.cell_size * size_persent / 100) / 2,y + Field.cell_size / 2 - (Field.cell_size * size_persent / 100) / 2,Field.cell_size * size_persent / 100,Field.cell_size * size_persent / 100);
+        //System.out.println("x : " + (x + 154 / 2 - (154 * size_persent / 100) / 2) + "        y  : " + (y + 154 / 2 - (154 * size_persent / 100) / 2) + "       value : " + value + "      size_percent : " + size_persent);
+    }
+
+    public void update(){
+        if (create_process > -1){
+            size_persent = (PROCESS_TIME - create_process) * 100 / PROCESS_TIME;
+        }
+        /*else if (destruct_process > -1){
+            size_persent = destruct_process * 100 / PROCESS_TIME;
+        }*/
+        if (addition_process > -1){
+            size_persent = (PROCESS_TIME + (addition_process)) * 100 / PROCESS_TIME;
+        }
+
+
+        //System.out.println("create_process : " + create_process + "     destryction_process : " + destruct_process + "      addition_process : " + addition_process);
+
+        if (move_process > 0){
+            if (right){
+                x += ((Field.cell_size + Field.pixels_beetwen_cells) / PROCESS_TIME) * v;
+            }
+            else if (left){
+                x -= ((Field.cell_size + Field.pixels_beetwen_cells) / PROCESS_TIME) * v;
+            }
+            else if (up){
+                y += ((Field.cell_size + Field.pixels_beetwen_cells) / PROCESS_TIME) * v;
+            }
+            else if (down){
+                y -= ((Field.cell_size + Field.pixels_beetwen_cells) / PROCESS_TIME) * v;
+            }
+        }
+
+
+        if (destruct_process == 0) destroed = true;
+        if (create_process > -1) create_process--;
+        if (destruct_process > -1) destruct_process--;
+        if (move_process > -1) move_process--;
+        if (addition_process > -1) addition_process--;
+        if (move_process == -1) v = 0;
+        if (addition_process == -1) added = false;
+        //size_persent = 100;
+    }
+
+    public int getValue(){
+        return value;
+    }
+
+    public int getMove_process(){ return move_process; }
+
+    public int getTime_value(){ return time_value; }
+
+    public void destroy(){
+        destruct_process = PROCESS_TIME * 2;
+    }
+
+    private void move(){
+        move_process = PROCESS_TIME;
+        left = right = up = down = false;
+    }
+
+    public void moveright(int v){
+        move();
+        right = true;
+        this.v += v;
+    }
+
+    public void moveleft(int v){
+        move();
+        left = true;
+        this.v += v;
+    }
+
+    public void movedown(int v){
+        move();
+        down = true;
+        this.v += v;
+    }
+
+    public void moveup(int v){
+        move();
+        up = true;
+        this.v += v;
+    }
+
+    public boolean isItDestroid(){
+        return destroed;
+    }
+
+    public void add(){
+        addition_process = PROCESS_TIME;
+        time_value *= 2;
+        value *= 2;
+        added = true;
+    }
+
+    public boolean isItAdded(){
+        return added;
+    }
+
+    public boolean isItDestroing(){
+        return destruct_process != 0;
+    }
+}
+
+package com.mygdx.game;
+
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
+public class Main extends ApplicationAdapter {
+	SpriteBatch batch;
+	Texture header,header_2048,texture,win,lose_img,field_img;
+	Field field;
+	Button restsrt_button,volume_button;
+	BitmapFont font27,font40;
+	int high_store = 0;
+	boolean click_on_win = false;
+	static boolean is_volume_on = true;
+	static Sound move,add;
+	int timer = 0;
+	boolean lose = false;
+	GameData gameData;
+	@Override
+	public void create () {
+		try {
+			gameData = new GameData();
+			move = Gdx.audio.newSound(Gdx.files.internal("move-2.mp3"));
+			add = Gdx.audio.newSound(Gdx.files.internal("ad2.mp3"));
+			restsrt_button = new Button("restart button_1.png","restart button_2.png",Gdx.graphics.getWidth() - (10 + 80),Gdx.graphics.getHeight() - 95 + 8);
+			volume_button = new Button("volume button_1.png","volume button_2.png",10,750 - ( 95 - (95 - 49) / 2));
+			win = new Texture("win.png");
+			lose_img = new Texture("lose.png");
+			field_img = new Texture("field.png");
+			batch = new SpriteBatch();
+			header = new Texture("header.png");
+			header_2048 = new Texture("2048_header.png");
+			field = new Field(Gdx.graphics.getWidth() / 2 - (Field.cell_size * 4 + Field.pixels_beetwen_cells * 3) / 2,
+					          20);//Gdx.graphics.getHeight() / 2 - (Field.cell_size * 4 + Field.pixels_beetwen_cells * 3) / 2);
+			font27 = new BitmapFont(Gdx.files.internal("font27.fnt"));
+			font40 = new BitmapFont(Gdx.files.internal("font40.fnt"));
+			gameData.load_data(this);
+			if (!is_volume_on) {
+				texture = volume_button.texture1;
+				volume_button.texture1 = volume_button.texture2;
+				volume_button.texture2 = texture;
+			}
+			//font20 = new BitmapFont(Gdx.files.external("font20.fnt"));
+		/*
+		width = 154 * 4 + 5*3 + 10 * 2
+		height = (restart_button + 10 + 2048 * 2) * 2 + 154 * 4 + 5 * 3
+		 */
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void render () {
+		try {
+			boolean b = false;
+			if (!field.is_there_2048() || (click_on_win && field.is_there_2048())) {
+				field.update();
+				restsrt_button.update();
+				volume_button.update();
+				if (volume_button.is_button_pressed) {
+					is_volume_on = !is_volume_on;
+					texture = volume_button.texture1;
+					volume_button.texture1 = volume_button.texture2;
+					volume_button.texture2 = texture;
+				}
+				if (field.getScore() > high_store) high_store = field.getScore();
+				if (restsrt_button.is_button_pressed || Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.R)) {
+					field.restart();
+					click_on_win = false;
+					b = false;
+					lose = false;
+				}
+			}
+			else {
+				b = true;
+				if (timer == 0) timer = 120;
+			}
+			Gdx.gl.glClearColor(0, 0, 0, 1);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+			batch.begin();
+			batch.draw(field_img,0,0);
+			field.render(batch);
+			batch.draw(header, 0, Gdx.graphics.getHeight() - header.getHeight());
+			batch.draw(header_2048,126,Gdx.graphics.getHeight() - (header.getHeight() + header_2048.getHeight() + 40));
+			restsrt_button.render(batch);
+			volume_button.render(batch);
+			int k = 1;
+			if (high_store > 9) k = 2;
+			if (high_store > 99) k = 3;
+			if (high_store > 999) k = 4;
+			if (high_store > 9999) k = 5;
+			if (high_store > 99999) k = 5;
+			font27.draw(batch,"High Store - " + high_store,161 - k * 6,730);
+			k = 1;
+			if (field.getScore() > 9) k = 2;
+			if (field.getScore() > 99) k = 3;
+			if (field.getScore() > 999) k = 4;
+			if (field.getScore() > 9999) k = 5;
+			if (field.getScore() > 99999) k = 5;
+			font40.draw(batch,"Store - " + field.getScore(),(int)(172 - k * 8.6),700);
+			if (lose) batch.draw(lose_img,50,325);
+			if (b) batch.draw(win,50,325);
+			batch.end();
+			if (b){
+				if (timer > 1) timer -= 1;
+				if ((Gdx.input.isButtonPressed(com.badlogic.gdx.Input.Buttons.LEFT) || Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.ANY_KEY)) && (timer == 1)){
+					click_on_win = true;
+					timer = 0;
+				}
+			}
+			else if (field.is_game_over()){
+				lose = true;
+			}
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void dispose () {
+		gameData.save_data(this);
+		batch.dispose();
+		header.dispose();
+	}
+}
+package com.mygdx.game;
+import com.badlogic.gdx.Gdx;
+
+import java.io.*;
+
+public class GameData implements Serializable {
+    private int[][] numbers = new int[4][4];
+    private int score,high_store;
+    private boolean click_on_win,is_volume_on,lose;
+
+    public GameData(){
+        numbers = new int[4][4];
+    }
+
+    public void save_data(Main main){
+        GameData gameData = new GameData();
+        for (int i = 0;i <= 3;i++) {
+            for (int j = 0;j <= 3;j++) {
+                if (!(main.field.numbers[i][j] == null)) gameData.numbers[i][j] = main.field.numbers[i][j].getTime_value();
+                else gameData.numbers[i][j] = -1;
+            }
+        }
+        gameData.score = main.field.getScore();
+        gameData.high_store = main.high_store;
+        gameData.click_on_win = main.click_on_win;
+        gameData.is_volume_on = Main.is_volume_on;
+        gameData.lose = main.lose;
+        try {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("data.dat"));
+            objectOutputStream.writeObject(gameData);
+            objectOutputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void load_data(Main main){
+        if (Gdx.files.internal("data.dat").exists()) {
+            GameData gameData;
+            try {
+                ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream("data.dat"));
+                gameData = (GameData) objectInputStream.readObject();
+                objectInputStream.close();
+                for (int i = 0;i <= 3;i++) {
+                    for (int j = 0;j <= 3;j++) {
+                        if (gameData.numbers[i][j] != -1){
+                            main.field.addNumberToField(j,i,gameData.numbers[i][j]);
+                        }
+                    }
+                }
+                main.field.setScore(gameData.score);
+                main.high_store = gameData.high_store;
+                main.click_on_win = gameData.click_on_win;
+                Main.is_volume_on = gameData.is_volume_on;
+                main.lose = gameData.lose;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
